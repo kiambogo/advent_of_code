@@ -45,18 +45,40 @@
 -- In this example, traversing the map using this slope would cause you to encounter 7 trees.
 -- Starting at the top-left corner of your map and following a slope of right 3 and down 1, how many trees would you encounter?
 
+-- Part B
+
+-- Time to check the rest of the slopes - you need to minimize the probability of a sudden arboreal stop, after all.
+-- Determine the number of trees you would encounter if, for each of the following slopes, you start at the top-left corner and traverse the map all the way to the bottom:
+--     Right 1, down 1.
+--     Right 3, down 1. (This is the slope you already checked.)
+--     Right 5, down 1.
+--     Right 7, down 1.
+--     Right 1, down 2.
+-- In the above example, these slopes would find 2, 7, 3, 4, and 2 tree(s) respectively; multiplied together, these produce the answer 336.
+-- What do you get if you multiply together the number of trees encountered on each of the listed slopes?
+
+
 main :: IO ()
 main = do
   lns <- fmap lines (readFile "input")
 
   putStrLn $ "Part A Solution: " ++ show (descend lns 0)
+  putStrLn $ "Part B Solution: " ++ show (descendN lns 0 1 1 * descendN lns 0 1 3 * descendN lns 0 1 5 * descendN lns 0 1 7 * descendN lns 0 2 1)
 
 -- Part A methods
 descend :: [String] -> Int -> Int 
 descend [] _ = 0
 descend (ln:xs) x
   | isTree ln x = 1 + descend xs (x+3)
-  | otherwise = 0 + descend xs (x+3)
+  | otherwise = descend xs (x+3)
+
+-- Part B methods
+descendN :: [String] -> Int -> Int -> Int -> Int
+descendN [] _ _ _ = 0
+descendN (ln:xs) x down right
+  | down == 0 = 0
+  | isTree ln x = 1 + descendN (drop down (ln:xs)) (x+right) down right
+  | otherwise = descendN (drop down (ln:xs)) (x+right) down right
 
 isTree :: String -> Int -> Bool
 isTree line x = line!!mod x (length line) == '#'
