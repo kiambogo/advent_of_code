@@ -38,6 +38,38 @@
 -- In this example, the sum of these counts is 3 + 3 + 3 + 1 + 1 = 11.
 -- For each group, count the number of questions to which anyone answered "yes". What is the sum of those counts?
 
+--- Part B ---
+
+-- As you finish the last group's customs declaration, you notice that you misread one word in the instructions:
+-- You don't need to identify the questions to which anyone answered "yes"; you need to identify the questions to which everyone answered "yes"!
+-- Using the same example as above:
+
+-- abc
+
+-- a
+-- b
+-- c
+
+-- ab
+-- ac
+
+-- a
+-- a
+-- a
+-- a
+
+-- b
+
+-- This list represents answers from five groups:
+--     In the first group, everyone (all 1 person) answered "yes" to 3 questions: a, b, and c.
+--     In the second group, there is no question to which everyone answered "yes".
+--     In the third group, everyone answered yes to only 1 question, a. Since some people did not answer "yes" to b or c, they don't count.
+--     In the fourth group, everyone answered yes to only 1 question, a.
+--     In the fifth group, everyone (all 1 person) answered "yes" to 1 question, b.
+-- In this example, the sum of these counts is 3 + 0 + 1 + 1 + 1 = 6.
+-- For each group, count the number of questions to which everyone answered "yes". What is the sum of those counts?
+
+
 import Data.Set (Set)
 import qualified Data.Set as Set
 
@@ -47,7 +79,8 @@ main :: IO ()
 main = do
   lns <- fmap lines (readFile "input")
 
-  putStrLn $ "Part A Solution: " ++ show (sum $ map (groupSize Set.empty) (parseInput lns []) )
+  putStrLn $ "Part A Solution: " ++ show (sum $ map (length . groupUniq Set.empty) (parseInput lns []) )
+  putStrLn $ "Part B Solution: " ++ show (sum $ map (\a -> groupUniqB (groupUniq a) a) (parseInput lns []) )
 
 
 parseInput :: [String] -> Group -> [Group]
@@ -56,7 +89,11 @@ parseInput (x:xs) g
   | x == ""  = g : parseInput xs []
   | otherwise  = parseInput xs (g ++ [x])
 
-groupSize :: Set Char -> Group -> Int
-groupSize s [] = Set.size s
-groupSize s (x:xs) = groupSize (Set.union s (Set.fromList x) ) xs
+groupUniq :: Set Char -> Group -> [Char]
+groupUniq s [] = Set.elems s 
+groupUniq s (x:xs) = groupUniq (Set.union s (Set.fromList x) ) xs
+
+groupUniqB :: [Char] -> Group ->  Int
+groupUniqB _ [] = 0
+groupUniqB chars  (x:xs) = max  (length $ filter (\c -> elem c chars) x) (groupUniqB xs chars)
 
