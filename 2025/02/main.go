@@ -21,8 +21,10 @@ func main() {
 	entries := strings.Split(lines[0], ",")
 
 	pt1Answer := calculatePt1Solution(entries)
+	pt2Answer := calculatePt2Solution(entries)
 
 	log.Printf("PT1 Solution: %d", pt1Answer)
+	log.Printf("PT2 Solution: %d", pt2Answer)
 
 	return
 }
@@ -36,6 +38,22 @@ func calculatePt1Solution(entries []string) int64 {
 		}
 		for n := a; n <= b; n++ {
 			if isRepeatedDigits(strconv.Itoa(n)) {
+				total += int64(n)
+			}
+		}
+	}
+	return total
+}
+
+func calculatePt2Solution(entries []string) int64 {
+	total := int64(0)
+	for _, entry := range entries {
+		a, b, err := parseRange(entry)
+		if err != nil {
+			log.Panicln(err.Error())
+		}
+		for n := a; n <= b; n++ {
+			if hasNRepeatedDigits(strconv.Itoa(n)) {
 				total += int64(n)
 			}
 		}
@@ -65,4 +83,28 @@ func isRepeatedDigits(val string) bool {
 	}
 
 	return val[0:(len(val)/2)] == val[(len(val)/2):]
+}
+
+func hasNRepeatedDigits(val string) bool {
+	for windowSize := 1; windowSize <= (len(val) / 2); windowSize++ {
+		sample := val[0:windowSize]
+		if stringIsSequenceOfRepeated(val, sample) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func stringIsSequenceOfRepeated(str string, rep string) bool {
+	if str == "" {
+		return false
+	}
+	if len(str) < len(rep) {
+		return false
+	}
+	if len(str) == len(rep) {
+		return str == rep
+	}
+	return string(str[0:len(rep)]) == rep && stringIsSequenceOfRepeated(str[len(rep):], rep)
 }
