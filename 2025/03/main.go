@@ -32,8 +32,10 @@ func main() {
 	}
 
 	pt1Answer := calculatePt1Solution(entries)
+	pt2Answer := calculatePt2Solution(entries)
 
 	log.Printf("PT1 Solution: %d", pt1Answer)
+	log.Printf("PT2 Solution: %d", pt2Answer)
 
 	return
 
@@ -50,6 +52,35 @@ func calculatePt1Solution(banks [][]int) int {
 		joltage, err := strconv.Atoi(strconv.Itoa(a) + strconv.Itoa(b))
 		if err != nil {
 			log.Panicf("invalid joltage calculated with %v + %v: %v", a, b, err.Error())
+		}
+		total += joltage
+	}
+
+	return total
+}
+
+func calculatePt2Solution(banks [][]int) int {
+	total := 0
+	for _, bank := range banks {
+		if len(bank) == 0 {
+			continue
+		}
+		if len(bank) < 12 {
+			return 0
+		}
+		// find the largest num that still leaves 11 digits remaining
+		numStr := ""
+		idx := 0
+		for i := 1; i <= 12; i++ {
+			offset := 12 - i
+			currMax, newIdx := largestNum(bank[idx:len(bank)-offset], idx)
+			numStr += strconv.Itoa(currMax)
+			idx = newIdx + 1
+		}
+
+		joltage, err := strconv.Atoi(numStr)
+		if err != nil {
+			log.Panicf("invalid joltage calculated with %v: %v", numStr, err.Error())
 		}
 		total += joltage
 	}
